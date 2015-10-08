@@ -54,8 +54,9 @@
 (defn extract-color
   "Takes an individual agent and returns the color of the individual
    at that position. You'll need to implement this so that it returns
-   desired color, or 'white' if there's no individual there."
-  [position]
+   desired color, or 'white' if there's no individual there (i.e., we
+   get passed nil)."
+  [individual]
   ; This returns a totally random color so it should be quite
   ; obvious if you haven't dealt with this. You can specify colors
   ; with things like strings ("blue") or keywords (:red).
