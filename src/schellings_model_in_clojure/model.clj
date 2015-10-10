@@ -23,13 +23,19 @@
    counts for this position without requiring that it go look
    at its neighbors."
   [me key neighbor old-state new-state]
+  ;(println "Me = " me)
+  ;(println "Key = " Key)
+  ;(println "Neighbor = " neighbor)
+  ;(println "Old-State = " old-state)
+  ;(println "New-State = " new-state)
+
   ; You'll obviously want to replace this with some code that actually
   ; does something useful :-)
   ; If your positions contain individuals as agents, this is
   ; probably where you want to call send to handle whatever
   ; needs to be done. Otherwise everything will end up happening in
   ; the main thread.
-  (println (str "I am " me " and my neighbor " neighbor " (key " key ") changed from " old-state " to " new-state)))
+  (println (str "I am "  me " and my neighbor " neighbor " (key " key ") changed from " old-state " to " new-state)))
 
 ;; You may be able to leave this alone, but feel free to change it
 ;; if you decide to structure your solution differently.
@@ -59,9 +65,6 @@
   [individual]
   ; This returns a totally random color so it should be quite
   ; obvious if you haven't dealt with this. You can specify colors
-  ; with things like strings ("blue") or keywords (:red).
-  (seesaw.color/color (rand-int 256)
-                      (rand-int 256)
-                      (rand-int 256)
-                      (rand-int 256))
+  (when individual
+    (if (= @individual :red) (seesaw.color/color 80 255 80) (seesaw.color/color 80 80 255)))
   )
