@@ -44,8 +44,8 @@
   if there's no individual there."
   []
   (if (< (rand) @empty-atom)
-    (atom nil)
-    (let [color (if (< (rand) @balance-atom) :red :blue)
+    (atom (agent {:color :white, :redCount 0, :blueCount 0}))
+    (let [color (if (< (rand) @balance-atom) {:color :red, :redCount 0, :blueCount 0} {:color :blue, :redCount 0, :blueCount 0})
           individual (agent color)
           position (atom individual)]
       ; I need to have all the individuals together in
@@ -66,5 +66,7 @@
   ; This returns a totally random color so it should be quite
   ; obvious if you haven't dealt with this. You can specify colors
   (when individual
-    (if (= @individual :red) (seesaw.color/color 80 255 80) (seesaw.color/color 80 80 255)))
+    (cond (= (:color @individual) :red) (seesaw.color/color 255 0 0)
+          (= (:color @individual) :blue) (seesaw.color/color 0 0 255)
+          :else (seesaw.color/color 255 255 255)))
   )

@@ -10,6 +10,15 @@
 (def number-of-individuals-on-a-side 30)
 (def individual-rectangle-size 10)
 
+(defn inc-color-count [old-agent color]
+  (println "")
+  ;(println "OLD AGENT IS " old-agent)
+  (println "")
+  ;#####################################
+  ;return either same agent altered, or a new agent with only the count altered
+  ;###########################################
+  (if (= :redCount color) (= (:redCount old-agent) (+  (:redCount old-agent) 1)) (+  (:blueCount old-agent) 1)))
+
 (defn neighborhood [[x y]]
   "Take a coordinate pair and return a list of all the
    neighborhood coordinate pairs."
@@ -63,6 +72,12 @@
     ; key to be unique for each watcher on a given position; I'm using
     ; neighbor for that, since no position should have more than one
     ; watcher for a given neighbor.
+    (println "")
+    (println "NEW NEIGHBORHOOD WATCHER")
+    (println "")
+    (println "position is " position)
+    (println "neighbor is " neighbor)
+    (if (= (:color @neighbor) :red) (send @position inc-color-count :redCount) (send  @position inc-color-count :blueCount))
     (add-watch position neighbor
                (partial model/handle-neighbor-change neighbor))))
 
@@ -153,3 +168,4 @@
               :width (:width window-size)
               :height (:height window-size)
               :content (make-window-content tile-array))))
+
