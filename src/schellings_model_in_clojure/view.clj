@@ -11,13 +11,21 @@
 (def individual-rectangle-size 10)
 
 (defn inc-color-count [old-agent color]
-  (println "")
-  ;(println "OLD AGENT IS " old-agent)
-  (println "")
-  ;#####################################
-  ;return either same agent altered, or a new agent with only the count altered
-  ;###########################################
-  (if (= :redCount color) (= (:redCount old-agent) (+  (:redCount old-agent) 1)) (+  (:blueCount old-agent) 1)))
+  (def denom (+ (:redCount old-agent) (:blueCount old-agent) 1))
+  (if (= :blueCount color)
+    {:color (:color old-agent), :redCount (:redCount old-agent), :blueCount (+ (:blueCount old-agent) 1), :happiness (cond (= (:color old-agent) :white)
+                                                                                                                           1
+                                                                                                                           (= (:color old-agent) :blue)
+                                                                                                                           (/ (+ (:blueCount old-agent) 1) denom)
+                                                                                                                           (= (:color old-agent) :red)
+                                                                                                                           (/ (:redCount old-agent) denom))}
+
+    {:color (:color old-agent), :redCount (+ (:redCount old-agent) 1), :blueCount (:blueCount old-agent), :happiness (cond (= (:color old-agent) :white)
+                                                                                                                           1
+                                                                                                                           (= (:color old-agent) :blue)
+                                                                                                                           (/ (:blueCount old-agent) denom)
+                                                                                                                           (= (:color old-agent) :red)
+                                                                                                                           (/ (+ (:redCount old-agent) 1) denom))}))
 
 (defn neighborhood [[x y]]
   "Take a coordinate pair and return a list of all the
@@ -43,7 +51,6 @@
   (for [x (range number-of-individuals-on-a-side)
         y (range number-of-individuals-on-a-side)]
     [x y]))
-
 (defn make-board-map [coordinates]
   "Take a list of coordinate pairs and construct new position atoms,
    possibly containing individual agents, and create a map from coordinates
@@ -72,12 +79,8 @@
     ; key to be unique for each watcher on a given position; I'm using
     ; neighbor for that, since no position should have more than one
     ; watcher for a given neighbor.
-    (println "")
-    (println "NEW NEIGHBORHOOD WATCHER")
-    (println "")
-    (println "position is " position)
-    (println "neighbor is " neighbor)
-    (if (= (:color @neighbor) :red) (send @position inc-color-count :redCount) (send  @position inc-color-count :blueCount))
+    (cond (= (:color @@neighbor) :red) (send @position inc-color-count :redCount)
+          (= (:color @@neighbor) :blue) (send  @position inc-color-count :blueCount))
     (add-watch position neighbor
                (partial model/handle-neighbor-change neighbor))))
 
@@ -86,6 +89,12 @@
    corresponding tile (with the same coordinate key). If the
    atom at that position changes, then the color of the bound
    tile should change to the color of the new value of that atom."
+  ;###############################################################################################################################
+  ;Making a vector of all the White Spaces
+  ;###############################################################################################################################
+  (def board (set board-map))
+  (println "")
+  ;(println (clojure.set/select (= (:color @@board) :white) board))
   (doseq [c coordinates]
     (sb/bind (board-map c)
              (sb/transform model/extract-color)

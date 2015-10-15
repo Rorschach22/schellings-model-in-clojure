@@ -3,6 +3,7 @@
 (def default-similarity 0.3)
 (def default-balance 0.5)
 (def default-empty 0.1)
+(def counter (atom 0))
 
 ; Atoms that reflect the state of the GUI sliders
 ; These aren't good names (they probably shouldn't say
@@ -23,11 +24,14 @@
    counts for this position without requiring that it go look
    at its neighbors."
   [me key neighbor old-state new-state]
+  (swap! counter inc)
+  (println (double (:happiness @old-state)))
   ;(println "Me = " me)
-  ;(println "Key = " Key)
+  ;(println "Key = " key)
   ;(println "Neighbor = " neighbor)
   ;(println "Old-State = " old-state)
   ;(println "New-State = " new-state)
+  (println  "")
 
   ; You'll obviously want to replace this with some code that actually
   ; does something useful :-)
@@ -35,7 +39,7 @@
   ; probably where you want to call send to handle whatever
   ; needs to be done. Otherwise everything will end up happening in
   ; the main thread.
-  (println (str "I am "  me " and my neighbor " neighbor " (key " key ") changed from " old-state " to " new-state)))
+  (println (str "I am "  @@me " and my neighbor " @@neighbor " (key " @@key ") changed from " @old-state " to " @new-state)))
 
 ;; You may be able to leave this alone, but feel free to change it
 ;; if you decide to structure your solution differently.
@@ -44,8 +48,8 @@
   if there's no individual there."
   []
   (if (< (rand) @empty-atom)
-    (atom (agent {:color :white, :redCount 0, :blueCount 0}))
-    (let [color (if (< (rand) @balance-atom) {:color :red, :redCount 0, :blueCount 0} {:color :blue, :redCount 0, :blueCount 0})
+    (atom (agent {:color :white, :redCount 0, :blueCount 0, :happiness 1}))
+    (let [color (if (< (rand) @balance-atom) {:color :red, :redCount 0, :blueCount 0, :happiness 1} {:color :blue, :redCount 0, :blueCount 0, :happiness 1})
           individual (agent color)
           position (atom individual)]
       ; I need to have all the individuals together in
