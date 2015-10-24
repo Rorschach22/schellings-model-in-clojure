@@ -11,7 +11,7 @@
 (def individual-rectangle-size 10)
 
 (defn inc-color-count [old-agent color]
-  (def denom (+ (:redCount old-agent) (:blueCount old-agent) 1))
+  (let [denom (+ (:redCount old-agent) (:blueCount old-agent) 1)]
   (if (= :blueCount color)
     {:color (:color old-agent), :redCount (:redCount old-agent), :blueCount (+ (:blueCount old-agent) 1), :happiness (cond (= (:color old-agent) :white)
                                                                                                                            1
@@ -25,7 +25,8 @@
                                                                                                                            (= (:color old-agent) :blue)
                                                                                                                            (/ (:blueCount old-agent) denom)
                                                                                                                            (= (:color old-agent) :red)
-                                                                                                                           (/ (+ (:redCount old-agent) 1) denom))}))
+                                                                                                                           (/ (+ (:redCount old-agent) 1) denom))})))
+
 
 (defn neighborhood [[x y]]
   "Take a coordinate pair and return a list of all the
@@ -61,12 +62,19 @@
 
 (defn make-tile-map
   "Take a list of coordinate pairs and construct new tiles (small canvases),
-   and create a map from coordinates to those tiles."
+   and create a map from coordinates to those tiles."neighbor
   [coordinates]
   (into {}
         (for [c coordinates]
           [c (sc/canvas :background "white"
                         :size [individual-rectangle-size :by individual-rectangle-size])])))
+
+(def empty-spots (atom[]))
+
+(defn add-empty-spots [board-map coordinates]
+  (if (= (:color @@(get board-map coordinates)) :white) (swap! empty-spots conj coordinates))
+
+  )
 
 (defn add-neighborhood-watchers [board-map]
   "Take the board map, and generate all the watchers between position
@@ -79,10 +87,13 @@
     ; key to be unique for each watcher on a given position; I'm using
     ; neighbor for that, since no position should have more than one
     ; watcher for a given neighbor.
+
     (cond (= (:color @@neighbor) :red) (send @position inc-color-count :redCount)
           (= (:color @@neighbor) :blue) (send  @position inc-color-count :blueCount))
+
     (add-watch position neighbor
-               (partial model/handle-neighbor-change neighbor))))
+               (partial model/handle-neighbor-change neighbor))
+  ))
 
 (defn bind-tiles [coordinates board-map tile-map]
   "Set up the bindings between every position atom and the
@@ -94,10 +105,11 @@
   ;###############################################################################################################################
   (def board (set board-map))
   (println "")
-  ;(println (clojure.set/select (= (:color @@board) :white) board))
   (doseq [c coordinates]
+    (add-empty-spots board-map c)
+
     (sb/bind (board-map c)
-             (sb/transform model/extract-color)
+            (sb/transform model/extract-color)
              (sb/property (tile-map c) :background))))
 
 (defn create-tile-array

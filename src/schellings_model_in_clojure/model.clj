@@ -1,6 +1,6 @@
 (ns schellings-model-in-clojure.model)
 
-(def default-similarity 0.3)
+(def default-similarity 0.5)
 (def default-balance 0.5)
 (def default-empty 0.1)
 (def counter (atom 0))
@@ -26,11 +26,11 @@
   [me key neighbor old-state new-state]
   (swap! counter inc)
   (println (double (:happiness @old-state)))
-  ;(println "Me = " me)
-  ;(println "Key = " key)
-  ;(println "Neighbor = " neighbor)
-  ;(println "Old-State = " old-state)
-  ;(println "New-State = " new-state)
+  (println "Me = " me)
+  (println "Key = " key)
+  (println "Neighbor = " neighbor)
+  (println "Old-State = " old-state)
+  (println "New-State = " new-state)
   (println  "")
 
   ; You'll obviously want to replace this with some code that actually
@@ -39,13 +39,14 @@
   ; probably where you want to call send to handle whatever
   ; needs to be done. Otherwise everything will end up happening in
   ; the main thread.
-  (println (str "I am "  @@me " and my neighbor " @@neighbor " (key " @@key ") changed from " @old-state " to " @new-state)))
+  ;(println (str "I am "  @@me " and my neighbor " @@neighbor " (key " @@key ") changed from " @old-state " to " @new-state)))
+)
+
 
 ;; You may be able to leave this alone, but feel free to change it
 ;; if you decide to structure your solution differently.
 (defn make-position
-  "Create a position atom that contains an individual agent, or nil
-  if there's no individual there."
+  "Create a position atom that contains an individual agent"
   []
   (if (< (rand) @empty-atom)
     (atom (agent {:color :white, :redCount 0, :blueCount 0, :happiness 1}))
